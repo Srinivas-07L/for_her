@@ -1,0 +1,2272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>The Defiant Mayurpankh — An Anti-Gravity Love Odyssey</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Matter.js Physics Engine -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    /* ==========================================================================
+       1. COSMIC & ROMANTIC COLOR PALETTE
+       ========================================================================== */
+    :root {
+      --bg-midnight: #050B14;
+      --bg-deep-blue: #0A192F;
+      --bg-yamuna-dark: #04121E;
+      --teal-radiant: #00A896;
+      --teal-bright: #028090;
+      --teal-glow: #00E5FF;
+      --sapphire-krishna: #1E3A8A;
+      --gold-sacred: #D4AF37;
+      --gold-radiant: #F59E0B;
+      --gold-light: #FDE68A;
+      --lotus-pink: #FDA4AF;
+      --lotus-rose: #F43F5E;
+      --heart-crimson: #E11D48;
+      --text-gold: #FEF08A;
+      --font-display: 'Cinzel Decorative', serif;
+      --font-narrative: 'Cormorant Garamond', serif;
+      --font-ui: 'Montserrat', sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 20%, #112844 0%, #081B30 45%, #030811 88%);
+      color: #E2E8F0;
+      font-family: var(--font-narrative);
+      touch-action: none;
+    }
+
+    /* Fullscreen Canvases */
+    #bg-canvas, #physics-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    #bg-canvas {
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    #physics-canvas {
+      z-index: 10;
+      pointer-events: auto; /* Matter.js mouse events handled here */
+    }
+
+    /* ==========================================================================
+       2. TOP BAR & REGAL ROMANTIC HEADER
+       ========================================================================== */
+    .header-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: 24px 20px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      z-index: 50;
+      pointer-events: none;
+      background: linear-gradient(180deg, rgba(5, 11, 20, 0.92) 0%, rgba(5, 11, 20, 0.5) 70%, transparent 100%);
+      transition: opacity 1s ease;
+    }
+
+    .badge-raakshasii {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(225, 29, 72, 0.2);
+      border: 1px solid rgba(244, 63, 94, 0.5);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      color: var(--lotus-pink);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      box-shadow: 0 0 15px rgba(244, 63, 94, 0.3);
+      animation: floatBreath 3.5s ease-in-out infinite;
+    }
+
+    .main-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.4rem, 4.2vw, 2.7rem);
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      background: linear-gradient(135deg, #FFFBEB 0%, var(--gold-light) 25%, #FDA4AF 60%, var(--gold-radiant) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 30px rgba(244, 63, 94, 0.4), 0 0 15px rgba(212, 175, 55, 0.4);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .main-subtitle {
+      font-family: var(--font-narrative);
+      font-size: clamp(0.98rem, 2vw, 1.28rem);
+      font-style: italic;
+      color: #E2E8F0;
+      letter-spacing: 0.04em;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
+      max-width: 720px;
+    }
+
+    .sub-cue {
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      color: var(--gold-sacred);
+      text-transform: uppercase;
+      margin-top: 6px;
+      opacity: 0.92;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sub-cue::before, .sub-cue::after {
+      content: '❤️';
+      font-size: 0.65rem;
+    }
+
+    /* Audio Controller Widget */
+    .audio-widget {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(10, 25, 47, 0.75);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      border-radius: 30px;
+      padding: 8px 16px;
+      cursor: pointer;
+      pointer-events: auto;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(212, 175, 55, 0.15);
+      transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .audio-widget:hover {
+      border-color: var(--gold-light);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(244, 63, 94, 0.4);
+    }
+
+    .sound-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 16px;
+      width: 18px;
+    }
+
+    .sound-bar {
+      width: 3px;
+      background: var(--gold-sacred);
+      border-radius: 2px;
+      height: 4px;
+      transition: height 0.2s ease;
+    }
+
+    .audio-playing .sound-bar:nth-child(1) { animation: barPlay 0.8s ease-in-out infinite alternate; }
+    .audio-playing .sound-bar:nth-child(2) { animation: barPlay 1.1s ease-in-out infinite 0.2s alternate; }
+    .audio-playing .sound-bar:nth-child(3) { animation: barPlay 0.9s ease-in-out infinite 0.4s alternate; }
+    .audio-playing .sound-bar:nth-child(4) { animation: barPlay 1.2s ease-in-out infinite 0.1s alternate; }
+
+    @keyframes barPlay {
+      0% { height: 4px; }
+      100% { height: 16px; }
+    }
+
+    .audio-label {
+      font-family: var(--font-ui);
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      color: var(--text-gold);
+      text-transform: uppercase;
+    }
+
+    /* Ambient Moon Aura in Background */
+    .vrindavan-moon {
+      position: absolute;
+      top: -140px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 580px;
+      height: 580px;
+      background: radial-gradient(circle, rgba(253, 164, 175, 0.15) 0%, rgba(212, 175, 55, 0.12) 35%, rgba(0, 168, 150, 0.08) 60%, transparent 75%);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 2;
+      filter: blur(45px);
+      animation: moonPulsate 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes moonPulsate {
+      0% { opacity: 0.7; transform: translateX(-50%) scale(0.95); }
+      100% { opacity: 1; transform: translateX(-50%) scale(1.1); }
+    }
+
+    /* ==========================================================================
+       3. INTERACTIVE MEMORY ORBS / CARDS (DOM LAYER SYNCED TO MATTER BODIES)
+       ========================================================================== */
+    #cards-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 25;
+    }
+
+    .memory-card {
+      position: absolute;
+      width: 200px;
+      height: 118px;
+      left: 0;
+      top: 0;
+      margin-left: -100px;
+      margin-top: -59px;
+      background: rgba(10, 25, 47, 0.78);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(244, 63, 94, 0.4);
+      border-radius: 20px;
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.65), inset 0 0 16px rgba(212, 175, 55, 0.15);
+      cursor: grab;
+      pointer-events: auto;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 12px 14px;
+      text-align: center;
+      will-change: transform;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+      overflow: hidden;
+    }
+
+    .memory-card:active {
+      cursor: grabbing;
+    }
+
+    .memory-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--lotus-pink), var(--gold-sacred), transparent);
+    }
+
+    .memory-card:hover {
+      border-color: var(--lotus-pink);
+      background: rgba(20, 38, 68, 0.9);
+      box-shadow: 0 12px 38px rgba(244, 63, 94, 0.45), inset 0 0 20px rgba(212, 175, 55, 0.25);
+    }
+
+    .card-icon {
+      font-size: 1.5rem;
+      margin-bottom: 5px;
+      filter: drop-shadow(0 0 6px rgba(244, 63, 94, 0.7));
+      pointer-events: none;
+    }
+
+    .card-title {
+      font-family: var(--font-display);
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #FFF;
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+      line-height: 1.25;
+      pointer-events: none;
+    }
+
+    .card-hint {
+      font-family: var(--font-ui);
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      color: var(--gold-light);
+      text-transform: uppercase;
+      opacity: 0.95;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .card-pulse-ring {
+      position: absolute;
+      inset: -4px;
+      border-radius: 24px;
+      border: 1px solid rgba(244, 63, 94, 0.5);
+      opacity: 0;
+      animation: orbPulse 3s infinite;
+      pointer-events: none;
+    }
+
+    @keyframes orbPulse {
+      0% { transform: scale(0.96); opacity: 0.65; }
+      50% { transform: scale(1.04); opacity: 0; }
+      100% { transform: scale(0.96); opacity: 0; }
+    }
+
+    /* ==========================================================================
+       4. BOTTOM CTA: PHASE 2 TRIGGER ("DEFY GRAVITY & ALIGN THE COSMOS")
+       ========================================================================== */
+    .bottom-cta-container {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 60;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      pointer-events: auto;
+      transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .align-button {
+      position: relative;
+      background: linear-gradient(135deg, rgba(225, 29, 72, 0.85) 0%, rgba(10, 25, 47, 0.95) 50%, rgba(212, 175, 55, 0.88) 100%);
+      border: 1.5px solid var(--gold-sacred);
+      border-radius: 50px;
+      padding: 14px 34px;
+      font-family: var(--font-ui);
+      font-size: clamp(0.78rem, 1.8vw, 0.95rem);
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #FFFFFF;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      box-shadow: 0 0 25px rgba(244, 63, 94, 0.45), inset 0 0 15px rgba(212, 175, 55, 0.3);
+      transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+      overflow: hidden;
+    }
+
+    .align-button::before {
+      content: '';
+      position: absolute;
+      inset: -50%;
+      background: radial-gradient(circle, rgba(253, 164, 175, 0.35) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+
+    .align-button:hover {
+      transform: translateY(-4px) scale(1.03);
+      border-color: #FFFBEB;
+      box-shadow: 0 0 45px rgba(244, 63, 94, 0.75), 0 0 25px rgba(212, 175, 55, 0.5);
+    }
+
+    .align-button:hover::before {
+      opacity: 1;
+    }
+
+    .align-button:active {
+      transform: translateY(-1px) scale(0.98);
+    }
+
+    .flute-btn-icon {
+      width: 22px;
+      height: 22px;
+      filter: drop-shadow(0 0 6px var(--gold-light));
+    }
+
+    /* Rotating halo around button */
+    .btn-halo {
+      position: absolute;
+      inset: -12px;
+      border-radius: 60px;
+      border: 1px dashed rgba(244, 63, 94, 0.55);
+      animation: rotateHalo 14s linear infinite;
+      pointer-events: none;
+    }
+
+    @keyframes rotateHalo {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* ==========================================================================
+       5. PHASE 1 MEMORY MODAL (LOVE TRIBUTE WITH FLIRTY PICKUP LINES)
+       ========================================================================== */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(3, 8, 17, 0.86);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 200;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 20px;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .modal-glass-card {
+      position: relative;
+      width: 100%;
+      max-width: 580px;
+      background: linear-gradient(145deg, rgba(10, 25, 47, 0.95) 0%, rgba(18, 10, 30, 0.97) 100%);
+      border: 1.5px solid rgba(244, 63, 94, 0.6);
+      border-radius: 26px;
+      padding: 42px 34px 36px;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 50px rgba(244, 63, 94, 0.3), inset 0 0 30px rgba(212, 175, 55, 0.15);
+      transform: scale(0.9) translateY(20px);
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .modal-overlay.active .modal-glass-card {
+      transform: scale(1) translateY(0);
+    }
+
+    .modal-corner-ornament {
+      position: absolute;
+      width: 34px;
+      height: 34px;
+      opacity: 0.65;
+    }
+    .modal-corner-ornament.top-left { top: 12px; left: 12px; }
+    .modal-corner-ornament.top-right { top: 12px; right: 12px; transform: scaleX(-1); }
+    .modal-corner-ornament.bottom-left { bottom: 12px; left: 12px; transform: scaleY(-1); }
+    .modal-corner-ornament.bottom-right { bottom: 12px; right: 12px; transform: scale(-1); }
+
+    .modal-emoji-header {
+      font-size: 2.8rem;
+      margin-bottom: 12px;
+      filter: drop-shadow(0 0 16px rgba(244, 63, 94, 0.8));
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.25rem, 3.2vw, 1.85rem);
+      color: #FFFBEB;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+      text-shadow: 0 0 18px rgba(244, 63, 94, 0.6);
+    }
+
+    .modal-tag {
+      font-family: var(--font-narrative);
+      font-size: 1.05rem;
+      font-style: italic;
+      color: var(--lotus-pink);
+      letter-spacing: 0.06em;
+      margin-bottom: 22px;
+      display: inline-block;
+      position: relative;
+    }
+
+    .modal-tag::before, .modal-tag::after {
+      content: '✦';
+      margin: 0 8px;
+      color: var(--gold-sacred);
+      font-size: 0.75rem;
+    }
+
+    .modal-body {
+      font-family: var(--font-narrative);
+      font-size: clamp(1.1rem, 2.3vw, 1.35rem);
+      line-height: 1.8;
+      color: #F1F5F9;
+      text-align: justify;
+      text-align-last: center;
+      margin-bottom: 30px;
+      position: relative;
+      font-weight: 400;
+      letter-spacing: 0.02em;
+    }
+
+    .modal-close-btn {
+      background: linear-gradient(135deg, rgba(225, 29, 72, 0.3) 0%, rgba(212, 175, 55, 0.35) 100%);
+      border: 1px solid var(--lotus-pink);
+      color: var(--gold-light);
+      font-family: var(--font-ui);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      padding: 12px 28px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .modal-close-btn:hover {
+      background: var(--lotus-rose);
+      color: #FFF;
+      box-shadow: 0 0 25px rgba(244, 63, 94, 0.8);
+      transform: translateY(-2px);
+    }
+
+    /* ==========================================================================
+       6. PHASE 3: ILLUMINATED FLUTE SILHOUETTE & ROYAL PARCHMENT
+       ========================================================================== */
+    .celestial-bansuri-silhouette {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.85);
+      width: min(85vw, 680px);
+      height: 160px;
+      z-index: 18;
+      pointer-events: none;
+      opacity: 0;
+      filter: drop-shadow(0 0 25px rgba(212, 175, 55, 0.85)) drop-shadow(0 0 45px rgba(244, 63, 94, 0.6));
+      transition: all 2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .celestial-bansuri-silhouette.active {
+      opacity: 1;
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .climax-overlay {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 50% 50%, rgba(5, 11, 20, 0.65) 0%, rgba(3, 8, 17, 0.95) 85%);
+      z-index: 150;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 1.8s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .climax-overlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .celestial-rays {
+      position: absolute;
+      width: 100vw;
+      height: 100vw;
+      max-width: 1100px;
+      max-height: 1100px;
+      background: conic-gradient(from 0deg at 50% 50%, 
+        rgba(212, 175, 55, 0.14) 0deg, transparent 20deg, 
+        rgba(244, 63, 94, 0.12) 45deg, transparent 65deg, 
+        rgba(212, 175, 55, 0.14) 90deg, transparent 110deg,
+        rgba(0, 168, 150, 0.1) 135deg, transparent 155deg,
+        rgba(212, 175, 55, 0.14) 180deg, transparent 200deg,
+        rgba(244, 63, 94, 0.12) 225deg, transparent 245deg,
+        rgba(212, 175, 55, 0.14) 270deg, transparent 290deg,
+        rgba(0, 168, 150, 0.1) 315deg, transparent 335deg,
+        rgba(212, 175, 55, 0.14) 360deg
+      );
+      animation: rotateRays 40s linear infinite;
+      pointer-events: none;
+      filter: blur(25px);
+      z-index: 1;
+    }
+
+    @keyframes rotateRays {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .royal-parchment {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 680px;
+      background: linear-gradient(135deg, #0A192F 0%, #150F26 50%, #04121E 100%);
+      border: 2px solid var(--gold-sacred);
+      border-radius: 28px;
+      padding: 46px 36px 38px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.9), 0 0 65px rgba(244, 63, 94, 0.35), inset 0 0 45px rgba(212, 175, 55, 0.15);
+      transform: perspective(1000px) rotateX(10deg) scale(0.92);
+      opacity: 0;
+      transition: all 1.2s cubic-bezier(0.16, 1, 0.3, 1) 0.5s;
+      text-align: center;
+    }
+
+    .climax-overlay.active .royal-parchment {
+      transform: perspective(1000px) rotateX(0deg) scale(1);
+      opacity: 1;
+    }
+
+    .parchment-header-crest {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+
+    .parchment-line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--lotus-pink), var(--gold-sacred), transparent);
+    }
+
+    .parchment-krishna-symbol {
+      width: 68px;
+      height: 68px;
+      filter: drop-shadow(0 0 16px rgba(244, 63, 94, 0.7));
+    }
+
+    .parchment-sacred-salute {
+      font-family: var(--font-ui);
+      font-size: 0.76rem;
+      letter-spacing: 0.3em;
+      color: var(--lotus-pink);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .parchment-name-title {
+      font-family: var(--font-display);
+      font-size: clamp(1.75rem, 4.4vw, 2.75rem);
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      background: linear-gradient(135deg, #FFFFFF 0%, #FEF08A 30%, #FDA4AF 65%, #F59E0B 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 22px;
+      text-shadow: 0 0 35px rgba(244, 63, 94, 0.6);
+    }
+
+    .parchment-letter-content {
+      font-family: var(--font-narrative);
+      font-size: clamp(1.1rem, 2.2vw, 1.35rem);
+      line-height: 1.82;
+      color: #F8FAFC;
+      text-align: justify;
+      text-align-last: center;
+      margin-bottom: 30px;
+      letter-spacing: 0.02em;
+      position: relative;
+    }
+
+    .parchment-letter-content p {
+      margin-bottom: 16px;
+    }
+
+    .parchment-letter-content strong {
+      color: var(--gold-light);
+      font-weight: 600;
+    }
+
+    .parchment-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .blessing-btn {
+      background: linear-gradient(135deg, #E11D48 0%, #F59E0B 100%);
+      color: #FFF;
+      font-family: var(--font-ui);
+      font-size: 0.85rem;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 14px 26px;
+      border: none;
+      border-radius: 40px;
+      cursor: pointer;
+      box-shadow: 0 0 25px rgba(244, 63, 94, 0.65);
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .blessing-btn:hover {
+      transform: translateY(-3px) scale(1.04);
+      box-shadow: 0 0 40px rgba(244, 63, 94, 0.9);
+      background: linear-gradient(135deg, #FDA4AF 0%, #E11D48 100%);
+    }
+
+    .loveline-btn {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.3) 0%, rgba(225, 29, 72, 0.4) 100%);
+      border: 1px solid var(--gold-sacred);
+      color: var(--text-gold);
+      font-family: var(--font-ui);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 14px 22px;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .loveline-btn:hover {
+      border-color: #FFF;
+      background: rgba(225, 29, 72, 0.6);
+      transform: translateY(-2px);
+      box-shadow: 0 0 20px rgba(244, 63, 94, 0.6);
+    }
+
+    .return-btn {
+      background: rgba(10, 25, 47, 0.85);
+      border: 1px solid var(--teal-radiant);
+      color: #E2E8F0;
+      font-family: var(--font-ui);
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 14px 22px;
+      border-radius: 40px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .return-btn:hover {
+      border-color: #FFF;
+      color: #FFF;
+      background: rgba(2, 128, 144, 0.45);
+      box-shadow: 0 0 20px rgba(2, 128, 144, 0.5);
+      transform: translateY(-2px);
+    }
+
+    /* Floating Flirty Love Line Toast Notification */
+    .loveline-toast {
+      position: fixed;
+      top: 90px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-20px);
+      background: rgba(18, 10, 30, 0.95);
+      border: 1.5px solid var(--lotus-pink);
+      border-radius: 20px;
+      padding: 16px 28px;
+      color: #FFFBEB;
+      font-family: var(--font-narrative);
+      font-size: 1.25rem;
+      font-style: italic;
+      text-align: center;
+      z-index: 300;
+      opacity: 0;
+      pointer-events: none;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.7), 0 0 30px rgba(244, 63, 94, 0.5);
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      max-width: 90vw;
+    }
+
+    .loveline-toast.active {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Subtle touch prompt for mobile */
+    .touch-hint {
+      position: absolute;
+      bottom: 96px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-ui);
+      font-size: 0.72rem;
+      letter-spacing: 0.22em;
+      color: rgba(253, 164, 175, 0.75);
+      text-transform: uppercase;
+      pointer-events: none;
+      z-index: 45;
+      animation: hintFade 3s ease-in-out infinite;
+      white-space: nowrap;
+    }
+
+    @keyframes hintFade {
+      0%, 100% { opacity: 0.35; }
+      50% { opacity: 0.95; }
+    }
+
+    @keyframes floatBreath {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Background Vrindavan Starlight & Moon Aura -->
+  <div class="vrindavan-moon"></div>
+  <canvas id="bg-canvas"></canvas>
+
+  <!-- Physics Engine Canvas (Feathers, Lotus Petals, Mouse Wake & Heart Sparks) -->
+  <canvas id="physics-canvas"></canvas>
+
+  <!-- Flirty Love Line Popup Toast -->
+  <div class="loveline-toast" id="loveline-toast">"Are you Krishna's flute? Because you make my heart dance to every tune you play." ❤️</div>
+
+  <!-- Illuminated Golden Bansuri (Flute) Silhouette in Phase 3 Alignment -->
+  <svg class="celestial-bansuri-silhouette" id="celestial-bansuri" viewBox="0 0 600 140" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Flute Body -->
+    <rect x="50" y="62" width="500" height="16" rx="8" fill="url(#fluteGold)" stroke="#FFFBEB" stroke-width="1.5"/>
+    <!-- Golden Rings -->
+    <line x1="85" y1="62" x2="85" y2="78" stroke="#78350F" stroke-width="3"/>
+    <line x1="125" y1="62" x2="125" y2="78" stroke="#78350F" stroke-width="2"/>
+    <line x1="510" y1="62" x2="510" y2="78" stroke="#78350F" stroke-width="3"/>
+    <!-- Embouchure Blow Hole -->
+    <ellipse cx="105" cy="70" rx="5" ry="4" fill="#050B14" stroke="#D4AF37" stroke-width="1.5"/>
+    <!-- Tone Holes (Saptak Swaras) -->
+    <circle cx="250" cy="70" r="3.5" fill="#050B14" stroke="#FEF08A" stroke-width="1.2"/>
+    <circle cx="295" cy="70" r="3.5" fill="#050B14" stroke="#FEF08A" stroke-width="1.2"/>
+    <circle cx="340" cy="70" r="3.5" fill="#050B14" stroke="#FEF08A" stroke-width="1.2"/>
+    <circle cx="385" cy="70" r="3.5" fill="#050B14" stroke="#FEF08A" stroke-width="1.2"/>
+    <circle cx="430" cy="70" r="3.5" fill="#050B14" stroke="#FEF08A" stroke-width="1.2"/>
+    <circle cx="475" cy="70" r="3.5" fill="#050B14" stroke="#FEF08A" stroke-width="1.2"/>
+    <!-- Tassel String and Mayurpankh Pendant at the end -->
+    <path d="M510 78 Q 525 105, 520 125" stroke="#FDA4AF" stroke-width="2" fill="none"/>
+    <ellipse cx="520" cy="128" rx="8" ry="6" fill="#00A896"/>
+    <ellipse cx="520" cy="128" rx="5" ry="4" fill="#1E3A8A"/>
+    <circle cx="520" cy="128" r="2" fill="#D4AF37"/>
+    <defs>
+      <linearGradient id="fluteGold" x1="0%" y1="0%" x2="100%" y2="0%">
+        <stop offset="0%" stop-color="#F59E0B"/>
+        <stop offset="30%" stop-color="#FDE68A"/>
+        <stop offset="60%" stop-color="#D4AF37"/>
+        <stop offset="100%" stop-color="#F59E0B"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <!-- Top Header Overlay -->
+  <header class="header-overlay">
+    <!-- Playful Raakshasii Badge -->
+    <div class="badge-raakshasii">
+      <span>😈 My Sweetest Little Raakshasii 💖</span>
+    </div>
+
+    <h1 class="main-title">Happy Birthday, My Raakshasii</h1>
+    <p class="main-subtitle">"Blessed by Sri Radha-Krishna, ruled by your cute chaos... drag the cosmic feathers or touch the floating love notes."</p>
+    <div class="sub-cue">The Sweetest Trouble in the Universe • Blessed by Radha &amp; Krishna</div>
+  </header>
+
+  <!-- Audio Controller Button (Top Right) -->
+  <div class="audio-widget" id="audio-toggle" title="Toggle Celestial Soundscape">
+    <div class="sound-bars" id="sound-indicator">
+      <div class="sound-bar"></div>
+      <div class="sound-bar"></div>
+      <div class="sound-bar"></div>
+      <div class="sound-bar"></div>
+    </div>
+    <span class="audio-label" id="audio-label-text">Flute Chimes</span>
+  </div>
+
+  <!-- Interactive DOM Cards Layer (Synced to Matter.js Type C Bodies) -->
+  <div id="cards-container"></div>
+
+  <!-- Subtle Guidance Prompt -->
+  <div class="touch-hint" id="touch-hint">✦ Grab &amp; Flick Feathers • Touch Her Love Notes ✦</div>
+
+  <!-- Bottom CTA: Phase 2 Alignment Trigger -->
+  <div class="bottom-cta-container" id="bottom-cta">
+    <div class="btn-halo"></div>
+    <button class="align-button" id="align-btn">
+      <svg class="flute-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 12h20M7 10v4M11 10v4M15 10v4M19 10v4"/>
+        <circle cx="21" cy="12" r="1.5" fill="#D4AF37"/>
+      </svg>
+      <span>🪈 Let Go of Gravity &amp; Align the Cosmos</span>
+    </button>
+  </div>
+
+  <!-- Phase 1: Memory Orb Popup Modal -->
+  <div class="modal-overlay" id="memory-modal">
+    <div class="modal-glass-card">
+      <svg class="modal-corner-ornament top-left" viewBox="0 0 50 50">
+        <path d="M5 45 V 10 Q 10 5 45 5" fill="none" stroke="#FDA4AF" stroke-width="2"/>
+        <circle cx="10" cy="10" r="3" fill="#D4AF37"/>
+      </svg>
+      <svg class="modal-corner-ornament top-right" viewBox="0 0 50 50">
+        <path d="M5 45 V 10 Q 10 5 45 5" fill="none" stroke="#FDA4AF" stroke-width="2"/>
+        <circle cx="10" cy="10" r="3" fill="#D4AF37"/>
+      </svg>
+      <svg class="modal-corner-ornament bottom-left" viewBox="0 0 50 50">
+        <path d="M5 45 V 10 Q 10 5 45 5" fill="none" stroke="#FDA4AF" stroke-width="2"/>
+        <circle cx="10" cy="10" r="3" fill="#D4AF37"/>
+      </svg>
+      <svg class="modal-corner-ornament bottom-right" viewBox="0 0 50 50">
+        <path d="M5 45 V 10 Q 10 5 45 5" fill="none" stroke="#FDA4AF" stroke-width="2"/>
+        <circle cx="10" cy="10" r="3" fill="#D4AF37"/>
+      </svg>
+
+      <div class="modal-emoji-header" id="modal-emoji">😈❤️</div>
+      <h2 class="modal-title" id="modal-title">My Favorite Raakshasii</h2>
+      <div class="modal-tag" id="modal-tag">The Sweetest Monster in All the Three Realms</div>
+      <p class="modal-body" id="modal-body">Text content here...</p>
+      
+      <button class="modal-close-btn" id="modal-close-btn">Return to Love Stream ✦</button>
+    </div>
+  </div>
+
+  <!-- Phase 3: The Maha-Milan Climax Screen & Royal Parchment -->
+  <div class="climax-overlay" id="climax-overlay">
+    <div class="celestial-rays"></div>
+
+    <div class="royal-parchment">
+      <!-- Sacred Header Crest -->
+      <div class="parchment-header-crest">
+        <div class="parchment-line"></div>
+        <svg class="parchment-krishna-symbol" viewBox="0 0 100 100" fill="none">
+          <ellipse cx="50" cy="50" rx="42" ry="42" stroke="#FDA4AF" stroke-width="1.5" stroke-dasharray="2 4"/>
+          <!-- Mayurpankh -->
+          <path d="M50 25 C45 42, 60 48, 50 75" stroke="#00A896" stroke-width="3" stroke-linecap="round"/>
+          <ellipse cx="50" cy="36" rx="14" ry="11" fill="#D4AF37" opacity="0.75"/>
+          <ellipse cx="50" cy="36" rx="10" ry="8" fill="#028090"/>
+          <ellipse cx="50" cy="36" rx="6" ry="5" fill="#1E3A8A"/>
+          <circle cx="51" cy="35" r="2.5" fill="#67E8F9"/>
+          <!-- Flute -->
+          <line x1="18" y1="65" x2="82" y2="65" stroke="#FDE68A" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="44" cy="65" r="2" fill="#050B14"/>
+          <circle cx="52" cy="65" r="2" fill="#050B14"/>
+          <circle cx="60" cy="65" r="2" fill="#050B14"/>
+          <circle cx="68" cy="65" r="2" fill="#050B14"/>
+        </svg>
+        <div class="parchment-line"></div>
+      </div>
+
+      <div class="parchment-sacred-salute">Blessed by Radha &amp; Krishna • Devoted to You</div>
+      <h2 class="parchment-name-title">Happy Birthday, My Raakshasii ❤️</h2>
+
+      <div class="parchment-letter-content">
+        <p>
+          Happy Birthday to my favorite, most dangerously adorable troublemaker in this entire universe! Today is the day the cosmos decided I needed someone to completely wreck my composure, steal my heart, and become my absolute favorite person to ever exist.
+        </p>
+        <p>
+          I know how deeply your heart reveres <strong>Sri Radha &amp; Krishna</strong>—how your eyes light up with pure tenderness whenever their names are spoken. Seeing that devotion in you makes me love you a thousand times more. Today, I join my hands and pray to the Divine Couple of Vrindavan: may <strong>Radha Rani</strong> shower you with boundless love and endless laughter, and may <strong>Lord Krishna</strong> forever protect your sweet smile and crown your life with eternal peace.
+        </p>
+        <p>
+          You don't need to be quiet or serious to be perfect in my eyes. You just have to be my <em>raakshasii</em>—my sweet menace, my best friend, my sweetest addiction, and the one whose laughter makes my entire world weightless.
+        </p>
+        <p style="font-style: italic; color: var(--gold-light); font-size: 1.15em; margin-top: 18px;">
+          "May Radha &amp; Krishna bless you with eternity... while I spend every second loving you."
+        </p>
+      </div>
+
+      <div class="parchment-actions">
+        <button class="blessing-btn" id="blessings-btn">
+          <span>🌸 Shower Blessings &amp; Hearts</span>
+        </button>
+        <button class="loveline-btn" id="loveline-btn">
+          <span>💘 Tell Me A Love Line</span>
+        </button>
+        <button class="return-btn" id="replay-btn">
+          <span>🎶 Replay Flute Melody</span>
+        </button>
+        <button class="return-btn" id="return-btn">
+          <span>🌌 Return to Zero-G</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==========================================================================
+       7. CORE JAVASCRIPT: PROCEDURAL AUDIO, MATTER.JS PHYSICS, CANVAS GRAPHICS
+       ========================================================================== -->
+  <script>
+    (function() {
+      'use strict';
+
+      /* --------------------------------------------------------------------------
+         A. AUDIO SYNTHESIZER (WEB AUDIO API - RAAG YAMAN SCALES & BANSURI FLUTE)
+         -------------------------------------------------------------------------- */
+      class ProceduralAudioEngine {
+        constructor() {
+          this.ctx = null;
+          this.masterGain = null;
+          this.reverbConvolver = null;
+          this.isMuted = false;
+          this.initialized = false;
+
+          // Raag Yaman Frequencies (Hz): Sa, Re, Ga, Ma-tivra, Pa, Dha, Ni, Taar Sa, Taar Re, Taar Ga
+          this.yamanNotes = [
+            261.63, // C4 (Sa)
+            293.66, // D4 (Re)
+            329.63, // E4 (Ga)
+            369.99, // F#4 (Tivra Ma)
+            392.00, // G4 (Pa)
+            440.00, // A4 (Dha)
+            493.88, // B4 (Ni)
+            523.25, // C5 (Taar Sa)
+            587.33, // D5 (Taar Re)
+            659.25  // E5 (Taar Ga)
+          ];
+
+          this.droneOscs = [];
+          this.droneGain = null;
+        }
+
+        init() {
+          if (this.initialized) {
+            if (this.ctx && this.ctx.state === 'suspended') {
+              this.ctx.resume();
+            }
+            return;
+          }
+
+          try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            this.ctx = new AudioContext();
+
+            const compressor = this.ctx.createDynamicsCompressor();
+            compressor.threshold.setValueAtTime(-18, this.ctx.currentTime);
+            compressor.knee.setValueAtTime(30, this.ctx.currentTime);
+            compressor.ratio.setValueAtTime(10, this.ctx.currentTime);
+            compressor.attack.setValueAtTime(0.003, this.ctx.currentTime);
+            compressor.release.setValueAtTime(0.25, this.ctx.currentTime);
+
+            this.masterGain = this.ctx.createGain();
+            this.masterGain.gain.setValueAtTime(0.85, this.ctx.currentTime);
+
+            compressor.connect(this.masterGain);
+            this.masterGain.connect(this.ctx.destination);
+
+            this.compressor = compressor;
+
+            this.createTempleEcho();
+            this.startTanpuraDrone();
+
+            this.initialized = true;
+          } catch (e) {
+            console.warn('Web Audio init warning:', e);
+          }
+        }
+
+        createTempleEcho() {
+          this.delay = this.ctx.createDelay(1.0);
+          this.delay.delayTime.setValueAtTime(0.28, this.ctx.currentTime);
+
+          this.feedback = this.ctx.createGain();
+          this.feedback.gain.setValueAtTime(0.38, this.ctx.currentTime);
+
+          const delayFilter = this.ctx.createBiquadFilter();
+          delayFilter.type = 'lowpass';
+          delayFilter.frequency.setValueAtTime(1800, this.ctx.currentTime);
+
+          this.delay.connect(delayFilter);
+          delayFilter.connect(this.feedback);
+          this.feedback.connect(this.delay);
+          delayFilter.connect(this.compressor);
+        }
+
+        toggleMute() {
+          if (!this.initialized) this.init();
+          this.isMuted = !this.isMuted;
+          if (this.masterGain && this.ctx) {
+            this.masterGain.gain.setTargetAtTime(this.isMuted ? 0 : 0.85, this.ctx.currentTime, 0.05);
+          }
+          return this.isMuted;
+        }
+
+        /* 1. Temple Bell / Singing Bowl Chime (Triggered on physics collisions) */
+        playTempleChime(velocityMagnitude = 2) {
+          if (!this.initialized || this.isMuted) return;
+          if (this.ctx.state === 'suspended') this.ctx.resume();
+
+          const now = this.ctx.currentTime;
+          const noteIndex = Math.floor(Math.random() * this.yamanNotes.length);
+          const baseFreq = this.yamanNotes[noteIndex];
+
+          const volume = Math.min(0.65, Math.max(0.12, velocityMagnitude * 0.075));
+
+          const osc1 = this.ctx.createOscillator();
+          const gain1 = this.ctx.createGain();
+          osc1.type = 'sine';
+          osc1.frequency.setValueAtTime(baseFreq, now);
+
+          const osc2 = this.ctx.createOscillator();
+          const gain2 = this.ctx.createGain();
+          osc2.type = 'sine';
+          osc2.frequency.setValueAtTime(baseFreq * 2.756, now);
+
+          const osc3 = this.ctx.createOscillator();
+          const gain3 = this.ctx.createGain();
+          osc3.type = 'sine';
+          osc3.frequency.setValueAtTime(baseFreq * 5.404, now);
+
+          const bowlFilter = this.ctx.createBiquadFilter();
+          bowlFilter.type = 'bandpass';
+          bowlFilter.frequency.setValueAtTime(baseFreq, now);
+          bowlFilter.Q.setValueAtTime(4.0, now);
+
+          gain1.gain.setValueAtTime(volume, now);
+          gain1.gain.exponentialRampToValueAtTime(0.0001, now + 2.2);
+
+          gain2.gain.setValueAtTime(volume * 0.35, now);
+          gain2.gain.exponentialRampToValueAtTime(0.0001, now + 1.2);
+
+          gain3.gain.setValueAtTime(volume * 0.15, now);
+          gain3.gain.exponentialRampToValueAtTime(0.0001, now + 0.6);
+
+          osc1.connect(bowlFilter);
+          bowlFilter.connect(gain1);
+          osc2.connect(gain2);
+          osc3.connect(gain3);
+
+          gain1.connect(this.compressor);
+          gain2.connect(this.compressor);
+          gain3.connect(this.compressor);
+          gain1.connect(this.delay);
+
+          osc1.start(now);
+          osc2.start(now);
+          osc3.start(now);
+
+          osc1.stop(now + 2.3);
+          osc2.stop(now + 1.3);
+          osc3.stop(now + 0.7);
+        }
+
+        /* 2. Expressive Bansuri (Bamboo Flute) Swell (Triggered on grab / drag) */
+        playBansuriSwell(pitchIndex = 3, duration = 1.6) {
+          if (!this.initialized || this.isMuted) return;
+          if (this.ctx.state === 'suspended') this.ctx.resume();
+
+          const now = this.ctx.currentTime;
+          const freq = this.yamanNotes[pitchIndex % this.yamanNotes.length];
+
+          const osc = this.ctx.createOscillator();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+
+          const lfo = this.ctx.createOscillator();
+          const lfoGain = this.ctx.createGain();
+          lfo.frequency.setValueAtTime(5.2, now);
+          lfoGain.gain.setValueAtTime(0, now);
+          lfoGain.gain.linearRampToValueAtTime(4.2, now + 0.25);
+          lfo.connect(osc.frequency);
+
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(750, now);
+          filter.frequency.exponentialRampToValueAtTime(2400, now + 0.2);
+          filter.frequency.exponentialRampToValueAtTime(850, now + duration);
+          filter.Q.setValueAtTime(3.2, now);
+
+          const bufferSize = this.ctx.sampleRate * 0.5;
+          const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+          const output = noiseBuffer.getChannelData(0);
+          for (let i = 0; i < bufferSize; i++) {
+            output[i] = (Math.random() * 2 - 1) * 0.15;
+          }
+          const whiteNoise = this.ctx.createBufferSource();
+          whiteNoise.buffer = noiseBuffer;
+          whiteNoise.loop = true;
+
+          const noiseFilter = this.ctx.createBiquadFilter();
+          noiseFilter.type = 'bandpass';
+          noiseFilter.frequency.setValueAtTime(2300, now);
+          noiseFilter.Q.setValueAtTime(4.2, now);
+
+          const noiseGain = this.ctx.createGain();
+          noiseGain.gain.setValueAtTime(0.001, now);
+          noiseGain.gain.linearRampToValueAtTime(0.045, now + 0.1);
+          noiseGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+          whiteNoise.connect(noiseFilter);
+          noiseFilter.connect(noiseGain);
+          noiseGain.connect(this.compressor);
+
+          const mainGain = this.ctx.createGain();
+          mainGain.gain.setValueAtTime(0.0001, now);
+          mainGain.gain.linearRampToValueAtTime(0.38, now + 0.12);
+          mainGain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+          osc.connect(filter);
+          filter.connect(mainGain);
+          mainGain.connect(this.compressor);
+          mainGain.connect(this.delay);
+
+          lfo.start(now);
+          osc.start(now);
+          whiteNoise.start(now);
+
+          lfo.stop(now + duration + 0.1);
+          osc.stop(now + duration + 0.1);
+          whiteNoise.stop(now + duration + 0.1);
+        }
+
+        /* 3. Ascending Yaman Arpeggio & Maha-Milan Gong (Phase 3 Climax) */
+        playClimaxMelody() {
+          if (!this.initialized || this.isMuted) return;
+          if (this.ctx.state === 'suspended') this.ctx.resume();
+
+          const melodyIndices = [6, 1, 2, 3, 4, 5, 6, 7];
+          const stepTime = 0.28;
+
+          melodyIndices.forEach((idx, i) => {
+            setTimeout(() => {
+              this.playBansuriSwell(idx, 1.25);
+            }, i * stepTime * 1000);
+          });
+
+          setTimeout(() => {
+            const now = this.ctx.currentTime;
+            const bowlFreq = 164.81;
+
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(bowlFreq, now);
+
+            const osc2 = this.ctx.createOscillator();
+            const gain2 = this.ctx.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(bowlFreq * 3.12, now);
+
+            gain.gain.setValueAtTime(0.65, now);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 4.5);
+
+            gain2.gain.setValueAtTime(0.25, now);
+            gain2.gain.exponentialRampToValueAtTime(0.0001, now + 2.8);
+
+            osc.connect(gain);
+            osc2.connect(gain2);
+            gain.connect(this.compressor);
+            gain2.connect(this.compressor);
+            gain.connect(this.delay);
+
+            osc.start(now);
+            osc2.start(now);
+            osc.stop(now + 4.6);
+            osc2.stop(now + 3.0);
+          }, melodyIndices.length * stepTime * 1000);
+        }
+
+        playBlessingsFanfare() {
+          if (!this.initialized || this.isMuted) return;
+          const chimePitches = [3, 4, 6, 7, 8, 9];
+          chimePitches.forEach((pitch, i) => {
+            setTimeout(() => {
+              this.playTempleChime(4.5);
+            }, i * 110);
+          });
+        }
+
+        startTanpuraDrone() {
+          if (!this.ctx) return;
+          const now = this.ctx.currentTime;
+          this.droneGain = this.ctx.createGain();
+          this.droneGain.gain.setValueAtTime(0.035, now);
+
+          const droneFreqs = [130.81, 196.00, 261.63];
+          droneFreqs.forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            osc.type = idx === 1 ? 'sine' : 'triangle';
+            osc.frequency.setValueAtTime(freq, now);
+
+            const chorus = this.ctx.createOscillator();
+            const chorusGain = this.ctx.createGain();
+            chorus.frequency.setValueAtTime(0.2 + idx * 0.1, now);
+            chorusGain.gain.setValueAtTime(0.6, now);
+            chorus.connect(osc.frequency);
+
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(450, now);
+
+            osc.connect(filter);
+            filter.connect(this.droneGain);
+
+            chorus.start(now);
+            osc.start(now);
+            this.droneOscs.push(osc, chorus);
+          });
+
+          this.droneGain.connect(this.compressor);
+        }
+      }
+
+      const audio = new ProceduralAudioEngine();
+
+      /* --------------------------------------------------------------------------
+         B. SACRED ROMANTIC MEMORY ORBS (LOVING, TEASING, AND DEVOTIONAL)
+         -------------------------------------------------------------------------- */
+      const MEMORY_ORBS_DATA = [
+        {
+          id: 'raakshasii',
+          title: 'My Favorite Raakshasii 😈❤️',
+          tag: 'The Sweetest Monster in All the Three Realms',
+          emoji: '😈❤️',
+          text: 'They say Lord Krishna defeated all the fierce demons with His celestial flute, but honestly? If He ever met you, He’d probably just laugh and ask how someone so small and adorable could cause so much havoc in my heart! You steal my peace, you haunt my thoughts 24/7, and you terrorize my sanity with just one smile. You are my favorite little raakshasii, and I would surrender my entire universe to your cute tyranny every single day.'
+        },
+        {
+          id: 'gravity',
+          title: 'The Gravity of You 🌌💘',
+          tag: 'Are you a cosmic anomaly or pure magic?',
+          emoji: '🌌💘',
+          text: 'If gravity is supposedly zero out here in this cosmic playground, then explain why I keep falling harder for you every single second? Sri Radha & Krishna might keep the stars in their celestial orbits, but my entire heart orbits strictly around you. Forget anti-gravity physics—your laughter alone makes everything heavy in my life instantly weightless.'
+        },
+        {
+          id: 'blessing',
+          title: 'Radha-Krishna’s Blessing 🪷🙏',
+          tag: 'When prayers get answered with sweet trouble',
+          emoji: '🪷🙏',
+          text: 'I prayed for peace, but Sri Radha & Krishna smiled and decided I needed a little bit of trouble—so they blessed me with you! Watching how deeply and purely your heart loves Radha-Krishna is the most endearing sight in the world. May the divine couple forever shower endless happiness, protective grace, and eternal light on you today and always... while I take care of cherishing you here on earth.'
+        },
+        {
+          id: 'chitta-chora',
+          title: 'You Stole My Sanity 🪈✨',
+          tag: 'Even Govinda’s flute never stole a heart this fast',
+          emoji: '🪈✨',
+          text: 'They call Lord Krishna "Chitta-Chora"—the stealer of hearts. But honestly, you gave Him tough competition! Did you cast a spell, or do you always walk around looking this dangerously breathtaking? With every birthday that passes, you only get cuter, naughtier, and more impossible to live without. You are my favorite distraction in this entire world.'
+        },
+        {
+          id: 'chaos',
+          title: 'Our Sweet Chaos 💫🏹',
+          tag: 'Partners in crime across every lifetime',
+          emoji: '💫🏹',
+          text: 'True love isn’t just solemn quietness; it’s you teasing me, giving me that mischievous sideways glance, and lighting up my darkest days like a thousand Diwali sparklers. You are my home, my chaos, my peace, and my sweetest addiction. Whatever births we take across this cosmos, I’m signing up to be yours in every single one.'
+        },
+        {
+          id: 'holiday',
+          title: 'Why Today is Blessed 🎂🎉',
+          tag: 'The heavens gifted the earth with my girl',
+          emoji: '🎂🎉',
+          text: 'The calendar might say today is just another date, but to me, it’s the celebration of the world’s prettiest, sweetest, most chaotic girl being born into this world. Thank you for choosing to be by my side, for bringing so much color into my life, and for being the queen of my heart. Happy Birthday, my sweet raakshasii!'
+        }
+      ];
+
+      // Flirty Pickup Lines for the Interactive Button
+      const LOVE_PICKUP_LINES = [
+        "Are you Krishna's flute? Because you make my heart dance to every tune you play. 🪈❤️",
+        "If being cute and troublesome was a crime, my raakshasii would be serving a lifetime sentence in my heart! 😈💘",
+        "The universe has billions of galaxies, but none of them shine as bright as your eyes when you look at me. ✨🌌",
+        "Radha taught the world how to love, Krishna taught the universe how to charm, but you? You just looked at me and stole my whole soul! 🪷💖",
+        "I asked Radha-Krishna for a blessing, and they gave me a full-time, adorable menace to love forever. 🙏❤️",
+        "Forget zero-gravity... your smile is the only force capable of sweeping me off my feet! 💫🥰",
+        "You’re my favorite raakshasii—the only demoness who conquered my heart without even trying! 😈👑",
+        "Even if I had all of Vrindavan's treasures, I'd still trade them all just to see you laugh like that. 🌸💕"
+      ];
+
+      /* --------------------------------------------------------------------------
+         C. PROCEDURAL GRAPHICS GENERATOR (PEACOCK FEATHERS & LOTUS PETALS)
+         -------------------------------------------------------------------------- */
+      const Sprites = {
+        feathers: [],
+        petals: []
+      };
+
+      function preRenderSprites() {
+        // 1. Pre-render 3 Variations of Mayurpankh (Peacock Feather)
+        for (let v = 0; v < 3; v++) {
+          const w = 110;
+          const h = 240;
+          const canvas = document.createElement('canvas');
+          canvas.width = w * 2;
+          canvas.height = h * 2;
+          const ctx = canvas.getContext('2d');
+          ctx.scale(2, 2);
+
+          const cx = w / 2;
+          const cy = h / 2;
+
+          // Stem (Rachis)
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(cx, h - 15);
+          ctx.quadraticCurveTo(cx + (v - 1) * 12, cy, cx - (v - 1) * 6, 25);
+          const stemGrad = ctx.createLinearGradient(cx, h - 15, cx, 25);
+          stemGrad.addColorStop(0, '#78350F');
+          stemGrad.addColorStop(0.5, '#D4AF37');
+          stemGrad.addColorStop(1, '#FEF08A');
+          ctx.strokeStyle = stemGrad;
+          ctx.lineWidth = 2.4;
+          ctx.lineCap = 'round';
+          ctx.stroke();
+
+          // Barbules
+          const numPairs = 55;
+          for (let i = 0; i < numPairs; i++) {
+            const t = i / numPairs;
+            const y = h - 20 - t * (h - 55);
+            const curvature = (v - 1) * 12 * Math.sin(t * Math.PI);
+            const x = cx + curvature;
+
+            let barbLen = 14 + Math.sin(t * Math.PI * 0.85) * 34;
+            if (t > 0.7) barbLen *= 1 - (t - 0.7) * 2.2;
+
+            // Left barbule
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.quadraticCurveTo(x - barbLen * 0.6, y - 8, x - barbLen, y - 18);
+            ctx.strokeStyle = (i % 2 === 0) ? 'rgba(0, 168, 150, 0.75)' : 'rgba(4, 120, 87, 0.7)';
+            ctx.lineWidth = 1.1;
+            ctx.stroke();
+
+            // Right barbule
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+            ctx.quadraticCurveTo(x + barbLen * 0.6, y - 8, x + barbLen, y - 18);
+            ctx.strokeStyle = (i % 2 === 0) ? 'rgba(30, 58, 138, 0.7)' : 'rgba(2, 128, 144, 0.75)';
+            ctx.lineWidth = 1.1;
+            ctx.stroke();
+          }
+
+          // Peacock Feather Eye (Ocellus)
+          const eyeX = cx - (v - 1) * 4;
+          const eyeY = 62;
+
+          // Outer Gold-Bronze Halo
+          const haloGrad = ctx.createRadialGradient(eyeX, eyeY, 4, eyeX, eyeY, 32);
+          haloGrad.addColorStop(0, 'rgba(245, 158, 11, 0.9)');
+          haloGrad.addColorStop(0.6, 'rgba(212, 175, 55, 0.75)');
+          haloGrad.addColorStop(1, 'rgba(212, 175, 55, 0)');
+          ctx.fillStyle = haloGrad;
+          ctx.beginPath();
+          ctx.ellipse(eyeX, eyeY, 28, 34, (v - 1) * 0.1, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Radiant Teal Mantle
+          ctx.fillStyle = '#00A896';
+          ctx.beginPath();
+          ctx.ellipse(eyeX, eyeY, 20, 25, (v - 1) * 0.1, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Electric Turquoise Ring
+          ctx.fillStyle = '#028090';
+          ctx.beginPath();
+          ctx.ellipse(eyeX, eyeY + 2, 16, 20, (v - 1) * 0.1, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Deep Krishna Midnight-Sapphire Oval
+          ctx.fillStyle = '#1E3A8A';
+          ctx.beginPath();
+          ctx.ellipse(eyeX, eyeY + 4, 12, 15, (v - 1) * 0.1, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Velvet Midnight Nucleus
+          ctx.fillStyle = '#050B14';
+          ctx.beginPath();
+          ctx.ellipse(eyeX, eyeY + 6, 8, 10, (v - 1) * 0.1, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Cyan Moon Crescent Reflection
+          ctx.fillStyle = '#67E8F9';
+          ctx.beginPath();
+          ctx.arc(eyeX + 2, eyeY + 5, 3.5, -Math.PI * 0.2, Math.PI * 0.8, false);
+          ctx.fill();
+
+          ctx.restore();
+          Sprites.feathers.push({ canvas, w, h });
+        }
+
+        // 2. Pre-render 2 Variations of Lotus Petals
+        for (let v = 0; v < 2; v++) {
+          const w = 48;
+          const h = 80;
+          const canvas = document.createElement('canvas');
+          canvas.width = w * 2;
+          canvas.height = h * 2;
+          const ctx = canvas.getContext('2d');
+          ctx.scale(2, 2);
+
+          const cx = w / 2;
+          const cy = h / 2;
+
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(cx, h - 8);
+          ctx.bezierCurveTo(cx - w * 0.45, cy + 10, cx - w * 0.48, cy - 15, cx, 8);
+          ctx.bezierCurveTo(cx + w * 0.48, cy - 15, cx + w * 0.45, cy + 10, cx, h - 8);
+          ctx.closePath();
+
+          const petalGrad = ctx.createLinearGradient(cx, h - 8, cx, 8);
+          if (v === 0) {
+            petalGrad.addColorStop(0, 'rgba(253, 230, 138, 0.85)');
+            petalGrad.addColorStop(0.4, 'rgba(253, 164, 175, 0.88)');
+            petalGrad.addColorStop(1, 'rgba(244, 63, 94, 0.95)');
+          } else {
+            petalGrad.addColorStop(0, 'rgba(212, 175, 55, 0.8)');
+            petalGrad.addColorStop(0.5, 'rgba(244, 63, 94, 0.85)');
+            petalGrad.addColorStop(1, 'rgba(251, 113, 133, 0.92)');
+          }
+
+          ctx.fillStyle = petalGrad;
+          ctx.shadowColor = 'rgba(244, 63, 94, 0.45)';
+          ctx.shadowBlur = 8;
+          ctx.fill();
+
+          ctx.beginPath();
+          ctx.moveTo(cx, h - 10);
+          ctx.quadraticCurveTo(cx + (v - 0.5) * 4, cy, cx, 14);
+          ctx.strokeStyle = 'rgba(254, 240, 138, 0.5)';
+          ctx.lineWidth = 1;
+          ctx.stroke();
+
+          ctx.restore();
+          Sprites.petals.push({ canvas, w, h });
+        }
+      }
+
+      preRenderSprites();
+
+      /* --------------------------------------------------------------------------
+         D. BACKGROUND PARTICLES (120 TWINKLING STARS)
+         -------------------------------------------------------------------------- */
+      const bgCanvas = document.getElementById('bg-canvas');
+      const bgCtx = bgCanvas.getContext('2d');
+      let stars = [];
+
+      function initBackgroundStars() {
+        const dpr = window.devicePixelRatio || 1;
+        bgCanvas.width = window.innerWidth * dpr;
+        bgCanvas.height = window.innerHeight * dpr;
+        bgCtx.scale(dpr, dpr);
+
+        stars = [];
+        const count = Math.min(160, Math.floor((window.innerWidth * window.innerHeight) / 7000));
+
+        for (let i = 0; i < count; i++) {
+          stars.push({
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            baseRadius: 0.6 + Math.random() * 1.6,
+            alpha: 0.2 + Math.random() * 0.8,
+            pulseSpeed: 0.01 + Math.random() * 0.03,
+            pulseAngle: Math.random() * Math.PI * 2,
+            color: ['#FFFBEB', '#D4AF37', '#FDA4AF', '#F43F5E'][Math.floor(Math.random() * 4)],
+            driftX: (Math.random() - 0.5) * 0.15,
+            driftY: (Math.random() - 0.5) * 0.15
+          });
+        }
+      }
+
+      function renderBackground() {
+        bgCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+        for (let i = 0; i < stars.length; i++) {
+          const s = stars[i];
+          s.pulseAngle += s.pulseSpeed;
+          const currentAlpha = Math.max(0.1, s.alpha + Math.sin(s.pulseAngle) * 0.35);
+
+          s.x += s.driftX;
+          s.y += s.driftY;
+          if (s.x < 0) s.x = window.innerWidth;
+          if (s.x > window.innerWidth) s.x = 0;
+          if (s.y < 0) s.y = window.innerHeight;
+          if (s.y > window.innerHeight) s.y = 0;
+
+          bgCtx.fillStyle = s.color;
+          bgCtx.globalAlpha = currentAlpha;
+          bgCtx.beginPath();
+          bgCtx.arc(s.x, s.y, s.baseRadius * (0.85 + Math.sin(s.pulseAngle) * 0.25), 0, Math.PI * 2);
+          bgCtx.fill();
+        }
+
+        bgCtx.globalAlpha = 1.0;
+        requestAnimationFrame(renderBackground);
+      }
+
+      initBackgroundStars();
+      requestAnimationFrame(renderBackground);
+
+      /* --------------------------------------------------------------------------
+         E. MATTER.JS ZERO-GRAVITY PHYSICS ENGINE & ENTITIES
+         -------------------------------------------------------------------------- */
+      const { Engine, World, Bodies, Body, Vector, Mouse, MouseConstraint, Constraint, Events } = Matter;
+
+      const physicsCanvas = document.getElementById('physics-canvas');
+      const ctx = physicsCanvas.getContext('2d');
+      let engine, world;
+      let walls = [];
+      let mouseConstraint;
+
+      const featherBodies = [];
+      const petalBodies = [];
+      const cardBodies = [];
+
+      let isClimaxActive = false;
+      let mousePosition = { x: -1000, y: -1000 };
+      let isPointerActive = false;
+
+      // Romantic Floating Heart Particles
+      const floatingHearts = [];
+
+      const cardsContainer = document.getElementById('cards-container');
+      const cardElements = [];
+
+      function initPhysics() {
+        const dpr = window.devicePixelRatio || 1;
+        physicsCanvas.width = window.innerWidth * dpr;
+        physicsCanvas.height = window.innerHeight * dpr;
+        ctx.scale(dpr, dpr);
+
+        engine = Engine.create({
+          enableSleeping: false
+        });
+        world = engine.world;
+        world.gravity.x = 0;
+        world.gravity.y = 0;
+        world.gravity.scale = 0;
+
+        createBoundaryWalls();
+
+        createFeatherBodies();
+        createPetalBodies();
+        createCardBodies();
+
+        const mouse = Mouse.create(physicsCanvas);
+        mouseConstraint = MouseConstraint.create(engine, {
+          mouse: mouse,
+          constraint: {
+            stiffness: 0.18,
+            damping: 0.1,
+            render: { visible: false }
+          }
+        });
+        World.add(world, mouseConstraint);
+
+        // Pointer wake tracking & floating heart spark generation
+        const onPointerMove = (x, y) => {
+          mousePosition.x = x;
+          mousePosition.y = y;
+          isPointerActive = true;
+
+          // Spawn cute floating love heart spark
+          if (floatingHearts.length < 40 && Math.random() > 0.45) {
+            floatingHearts.push({
+              x: x + (Math.random() - 0.5) * 20,
+              y: y + (Math.random() - 0.5) * 20,
+              size: 12 + Math.random() * 12,
+              alpha: 1.0,
+              color: Math.random() > 0.4 ? '#FDA4AF' : '#D4AF37',
+              char: Math.random() > 0.3 ? '♥' : '✦',
+              vx: (Math.random() - 0.5) * 1.2,
+              vy: -0.8 - Math.random() * 1.2,
+              rot: (Math.random() - 0.5) * 0.4
+            });
+          }
+        };
+
+        window.addEventListener('mousemove', (e) => {
+          onPointerMove(e.clientX, e.clientY);
+        });
+
+        window.addEventListener('touchmove', (e) => {
+          if (e.touches.length > 0) {
+            onPointerMove(e.touches[0].clientX, e.touches[0].clientY);
+          }
+        }, { passive: true });
+
+        window.addEventListener('touchend', () => {
+          isPointerActive = false;
+        });
+
+        // Sound on Collisions (Raag Yaman Singing Bell)
+        Events.on(engine, 'collisionStart', (event) => {
+          if (!audio.initialized) return;
+          const pairs = event.pairs;
+          for (let i = 0; i < pairs.length; i++) {
+            const pair = pairs[i];
+            const vA = pair.bodyA.velocity;
+            const vB = pair.bodyB.velocity;
+            const relativeVelocity = Math.sqrt(
+              Math.pow(vA.x - vB.x, 2) + Math.pow(vA.y - vB.y, 2)
+            );
+
+            if (relativeVelocity > 1.8) {
+              audio.playTempleChime(relativeVelocity);
+              break;
+            }
+          }
+        });
+
+        // Sound on Feather Grab/Drag (Bansuri Swell)
+        let lastFlutePlay = 0;
+        Events.on(mouseConstraint, 'startdrag', (event) => {
+          audio.init();
+          const now = Date.now();
+          if (now - lastFlutePlay > 700) {
+            const body = event.body;
+            if (body && body.customType === 'feather') {
+              audio.playBansuriSwell(Math.floor(Math.random() * 7), 1.5);
+              lastFlutePlay = now;
+            }
+          }
+        });
+      }
+
+      function createBoundaryWalls() {
+        if (walls.length > 0) {
+          World.remove(world, walls);
+          walls = [];
+        }
+
+        const width = window.innerWidth;
+        const height = window.innerHeight;
+        const wallThickness = 120;
+        const options = {
+          isStatic: true,
+          restitution: 0.85,
+          friction: 0.05
+        };
+
+        const topWall = Bodies.rectangle(width / 2, -wallThickness / 2, width * 2, wallThickness, options);
+        const bottomWall = Bodies.rectangle(width / 2, height + wallThickness / 2, width * 2, wallThickness, options);
+        const leftWall = Bodies.rectangle(-wallThickness / 2, height / 2, wallThickness, height * 2, options);
+        const rightWall = Bodies.rectangle(width + wallThickness / 2, height / 2, wallThickness, height * 2, options);
+
+        walls = [topWall, bottomWall, leftWall, rightWall];
+        World.add(world, walls);
+      }
+
+      function createFeatherBodies() {
+        const count = window.innerWidth < 768 ? 7 : 10;
+        for (let i = 0; i < count; i++) {
+          const x = 90 + Math.random() * (window.innerWidth - 180);
+          const y = 90 + Math.random() * (window.innerHeight - 220);
+
+          const body = Bodies.rectangle(x, y, 45, 160, {
+            frictionAir: 0.015,
+            restitution: 0.75,
+            density: 0.0012,
+            angle: Math.random() * Math.PI * 2,
+            customType: 'feather',
+            spriteIndex: i % Sprites.feathers.length
+          });
+
+          Body.setVelocity(body, {
+            x: (Math.random() - 0.5) * 1.5,
+            y: (Math.random() - 0.5) * 1.5
+          });
+          Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.03);
+
+          featherBodies.push(body);
+          World.add(world, body);
+        }
+      }
+
+      function createPetalBodies() {
+        const count = window.innerWidth < 768 ? 10 : 16;
+        for (let i = 0; i < count; i++) {
+          const x = 70 + Math.random() * (window.innerWidth - 140);
+          const y = 70 + Math.random() * (window.innerHeight - 180);
+
+          const body = Bodies.circle(x, y, 16, {
+            frictionAir: 0.02,
+            restitution: 0.8,
+            density: 0.0008,
+            angle: Math.random() * Math.PI * 2,
+            customType: 'petal',
+            spriteIndex: i % Sprites.petals.length
+          });
+
+          Body.setVelocity(body, {
+            x: (Math.random() - 0.5) * 1.8,
+            y: (Math.random() - 0.5) * 1.8
+          });
+          Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.04);
+
+          petalBodies.push(body);
+          World.add(world, body);
+        }
+      }
+
+      function createCardBodies() {
+        cardsContainer.innerHTML = '';
+        cardElements.length = 0;
+
+        const count = MEMORY_ORBS_DATA.length;
+        const w = window.innerWidth;
+        const h = window.innerHeight;
+
+        MEMORY_ORBS_DATA.forEach((data, i) => {
+          const angleStep = (i / count) * Math.PI * 2;
+          const radius = Math.min(w, h) * 0.35;
+          const x = (w / 2) + Math.cos(angleStep) * radius + (Math.random() - 0.5) * 40;
+          const y = (h / 2) + Math.sin(angleStep) * (radius * 0.75) + (Math.random() - 0.5) * 40;
+
+          const body = Bodies.rectangle(x, y, 200, 118, {
+            chamfer: { radius: 20 },
+            frictionAir: 0.028,
+            restitution: 0.75,
+            density: 0.003,
+            angle: (Math.random() - 0.5) * 0.3,
+            customType: 'card',
+            cardIndex: i
+          });
+
+          Body.setVelocity(body, {
+            x: (Math.random() - 0.5) * 0.8,
+            y: (Math.random() - 0.5) * 0.8
+          });
+
+          cardBodies.push(body);
+          World.add(world, body);
+
+          const el = document.createElement('div');
+          el.className = 'memory-card';
+          el.dataset.index = i;
+
+          el.innerHTML = `
+            <div class="card-pulse-ring"></div>
+            <div class="card-icon">${data.emoji}</div>
+            <div class="card-title">${data.title}</div>
+            <div class="card-hint"><span>💖</span> Tap to Read Love Note <span>💖</span></div>
+          `;
+
+          // Seamless Card Dragging & Click Handling through dynamic Matter Constraint
+          let dragConstraint = null;
+          let pointerAnchor = { x: 0, y: 0 };
+          let startX = 0, startY = 0;
+          let hasMoved = false;
+
+          const onPointerMove = (e) => {
+            pointerAnchor.x = e.clientX;
+            pointerAnchor.y = e.clientY;
+            if (Math.hypot(e.clientX - startX, e.clientY - startY) > 7) {
+              hasMoved = true;
+            }
+          };
+
+          const onPointerUp = () => {
+            window.removeEventListener('pointermove', onPointerMove);
+            window.removeEventListener('pointerup', onPointerUp);
+            if (dragConstraint) {
+              World.remove(world, dragConstraint);
+              dragConstraint = null;
+            }
+            if (!hasMoved) {
+              openMemoryModal(i);
+            }
+          };
+
+          el.addEventListener('pointerdown', (e) => {
+            audio.init();
+            startX = e.clientX;
+            startY = e.clientY;
+            hasMoved = false;
+            pointerAnchor.x = e.clientX;
+            pointerAnchor.y = e.clientY;
+
+            dragConstraint = Constraint.create({
+              pointA: pointerAnchor,
+              bodyB: body,
+              pointB: { x: e.clientX - body.position.x, y: e.clientY - body.position.y },
+              stiffness: 0.28,
+              damping: 0.1
+            });
+            World.add(world, dragConstraint);
+
+            window.addEventListener('pointermove', onPointerMove);
+            window.addEventListener('pointerup', onPointerUp);
+          });
+
+          cardsContainer.appendChild(el);
+          cardElements.push(el);
+        });
+      }
+
+      /* --------------------------------------------------------------------------
+         F. MAIN PHYSICS & RENDERING LOOP (60 FPS)
+         -------------------------------------------------------------------------- */
+      function renderLoop() {
+        Engine.update(engine, 1000 / 60);
+
+        ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight / 2;
+
+        // Dynamic Pointer Wake
+        if (isPointerActive && !isClimaxActive) {
+          const wakeRadius = 180;
+          const allBodies = [...featherBodies, ...petalBodies, ...cardBodies];
+          for (let i = 0; i < allBodies.length; i++) {
+            const b = allBodies[i];
+            const dx = b.position.x - mousePosition.x;
+            const dy = b.position.y - mousePosition.y;
+            const dist = Math.hypot(dx, dy);
+
+            if (dist < wakeRadius && dist > 10) {
+              const force = (1 - dist / wakeRadius) * 0.00035;
+              Body.applyForce(b, b.position, {
+                x: (dx / dist) * force - (dy / dist) * force * 0.4,
+                y: (dy / dist) * force + (dx / dist) * force * 0.4
+              });
+            }
+          }
+        }
+
+        // Render Floating Hearts and Sparks
+        for (let i = floatingHearts.length - 1; i >= 0; i--) {
+          const p = floatingHearts[i];
+          p.x += p.vx;
+          p.y += p.vy;
+          p.alpha -= 0.02;
+          if (p.alpha <= 0) {
+            floatingHearts.splice(i, 1);
+            continue;
+          }
+          ctx.save();
+          ctx.globalAlpha = p.alpha;
+          ctx.fillStyle = p.color;
+          ctx.font = `${p.size}px serif`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(p.char, p.x, p.y);
+          ctx.restore();
+        }
+
+        // Phase 3 Climax: Spring Attraction Force towards Crown Formation
+        if (isClimaxActive) {
+          applyClimaxFormationForces(cx, cy);
+        }
+
+        // Render Feathers
+        for (let i = 0; i < featherBodies.length; i++) {
+          const b = featherBodies[i];
+          const sprite = Sprites.feathers[b.spriteIndex];
+
+          ctx.save();
+          ctx.translate(b.position.x, b.position.y);
+          ctx.rotate(b.angle);
+          ctx.drawImage(sprite.canvas, -sprite.w / 2, -sprite.h / 2, sprite.w, sprite.h);
+          ctx.restore();
+        }
+
+        // Render Lotus Petals
+        for (let i = 0; i < petalBodies.length; i++) {
+          const b = petalBodies[i];
+          const sprite = Sprites.petals[b.spriteIndex];
+
+          ctx.save();
+          ctx.translate(b.position.x, b.position.y);
+          ctx.rotate(b.angle);
+          ctx.drawImage(sprite.canvas, -sprite.w / 2, -sprite.h / 2, sprite.w, sprite.h);
+          ctx.restore();
+        }
+
+        // Sync Memory Cards HTML elements to Matter.js coordinates
+        for (let i = 0; i < cardBodies.length; i++) {
+          const b = cardBodies[i];
+          const el = cardElements[i];
+          if (el) {
+            el.style.transform = `translate3d(${b.position.x}px, ${b.position.y}px, 0) rotate(${b.angle}rad)`;
+          }
+        }
+
+        requestAnimationFrame(renderLoop);
+      }
+
+      /* --------------------------------------------------------------------------
+         G. PHASE 3: THE MAHA-MILAN FORMATION MECHANICS
+         -------------------------------------------------------------------------- */
+      function applyClimaxFormationForces(cx, cy) {
+        const spring = 0.0018;
+        const damping = 0.04;
+
+        // 1. Feathers Arched Crown (Mor Mukut)
+        const N = featherBodies.length;
+        const crownRadius = Math.min(window.innerWidth, window.innerHeight) * 0.32;
+        const crownCenterY = cy - 65;
+
+        for (let i = 0; i < N; i++) {
+          const b = featherBodies[i];
+          const t = i / (N - 1);
+          const angle = -Math.PI * 0.88 + t * (Math.PI * 0.76);
+          const targetX = cx + Math.cos(angle) * crownRadius;
+          const targetY = crownCenterY + Math.sin(angle) * (crownRadius * 0.75);
+          const targetAngle = angle + Math.PI / 2;
+
+          const fx = (targetX - b.position.x) * spring - b.velocity.x * damping;
+          const fy = (targetY - b.position.y) * spring - b.velocity.y * damping;
+          Body.applyForce(b, b.position, { x: fx, y: fy });
+
+          Body.setAngle(b, b.angle + (targetAngle - b.angle) * 0.05);
+        }
+
+        // 2. Lotus Petals Blossom Base
+        const M = petalBodies.length;
+        const lotusRadius = Math.min(window.innerWidth, window.innerHeight) * 0.22;
+        for (let i = 0; i < M; i++) {
+          const b = petalBodies[i];
+          const angle = (i / M) * Math.PI * 2;
+          const targetX = cx + Math.cos(angle) * (lotusRadius * 0.85);
+          const targetY = cy + 45 + Math.sin(angle) * (lotusRadius * 0.45);
+
+          const fx = (targetX - b.position.x) * spring - b.velocity.x * damping;
+          const fy = (targetY - b.position.y) * spring - b.velocity.y * damping;
+          Body.applyForce(b, b.position, { x: fx, y: fy });
+        }
+
+        // 3. Memory Orbs Lower Garland Arch
+        const K = cardBodies.length;
+        const garlandRadius = Math.min(window.innerWidth, window.innerHeight) * 0.42;
+        for (let i = 0; i < K; i++) {
+          const b = cardBodies[i];
+          const t = i / (K - 1);
+          const angle = Math.PI * 0.18 + t * (Math.PI * 0.64);
+          const targetX = cx + Math.cos(angle) * garlandRadius;
+          const targetY = cy + 15 + Math.sin(angle) * (garlandRadius * 0.55);
+
+          const fx = (targetX - b.position.x) * spring - b.velocity.x * damping;
+          const fy = (targetY - b.position.y) * spring - b.velocity.y * damping;
+          Body.applyForce(b, b.position, { x: fx, y: fy });
+
+          Body.setAngle(b, b.angle * 0.95);
+        }
+      }
+
+      /* --------------------------------------------------------------------------
+         H. MODAL CONTROLS, LOVE LINES & EVENT HANDLERS
+         -------------------------------------------------------------------------- */
+      const memoryModal = document.getElementById('memory-modal');
+      const modalEmoji = document.getElementById('modal-emoji');
+      const modalTitle = document.getElementById('modal-title');
+      const modalTag = document.getElementById('modal-tag');
+      const modalBody = document.getElementById('modal-body');
+      const modalCloseBtn = document.getElementById('modal-close-btn');
+
+      function openMemoryModal(index) {
+        audio.init();
+        audio.playTempleChime(4.0);
+        const data = MEMORY_ORBS_DATA[index];
+        if (!data) return;
+
+        modalEmoji.textContent = data.emoji;
+        modalTitle.textContent = data.title;
+        modalTag.textContent = data.tag;
+        modalBody.textContent = data.text;
+        memoryModal.classList.add('active');
+      }
+
+      modalCloseBtn.addEventListener('click', () => {
+        audio.playTempleChime(2.0);
+        memoryModal.classList.remove('active');
+      });
+
+      memoryModal.addEventListener('click', (e) => {
+        if (e.target === memoryModal) {
+          memoryModal.classList.remove('active');
+        }
+      });
+
+      // Align the Cosmos (Phase 3 Trigger)
+      const alignBtn = document.getElementById('align-btn');
+      const bottomCta = document.getElementById('bottom-cta');
+      const celestialBansuri = document.getElementById('celestial-bansuri');
+      const climaxOverlay = document.getElementById('climax-overlay');
+      const blessingsBtn = document.getElementById('blessings-btn');
+      const lovelineBtn = document.getElementById('loveline-btn');
+      const replayBtn = document.getElementById('replay-btn');
+      const returnBtn = document.getElementById('return-btn');
+      const touchHint = document.getElementById('touch-hint');
+      const lovelineToast = document.getElementById('loveline-toast');
+
+      alignBtn.addEventListener('click', () => {
+        audio.init();
+        isClimaxActive = true;
+        bottomCta.style.opacity = '0';
+        bottomCta.style.pointerEvents = 'none';
+        if (touchHint) touchHint.style.opacity = '0';
+
+        celestialBansuri.classList.add('active');
+        audio.playClimaxMelody();
+
+        setTimeout(() => {
+          climaxOverlay.classList.add('active');
+          triggerBlessingsShower();
+        }, 2200);
+      });
+
+      function triggerBlessingsShower() {
+        audio.playBlessingsFanfare();
+
+        if (typeof confetti === 'function') {
+          confetti({
+            particleCount: 120,
+            spread: 90,
+            origin: { y: 0.6 },
+            colors: ['#FDA4AF', '#E11D48', '#D4AF37', '#FDE68A', '#00A896']
+          });
+
+          setTimeout(() => {
+            confetti({
+              particleCount: 70,
+              angle: 60,
+              spread: 65,
+              origin: { x: 0 },
+              colors: ['#E11D48', '#FDA4AF', '#D4AF37']
+            });
+            confetti({
+              particleCount: 70,
+              angle: 120,
+              spread: 65,
+              origin: { x: 1 },
+              colors: ['#FEF08A', '#F43F5E', '#028090']
+            });
+          }, 350);
+        }
+      }
+
+      blessingsBtn.addEventListener('click', () => {
+        triggerBlessingsShower();
+      });
+
+      // Interactive Love Line Pickup Generator
+      let currentLineIndex = 0;
+      lovelineBtn.addEventListener('click', () => {
+        audio.playTempleChime(3.5);
+        const line = LOVE_PICKUP_LINES[currentLineIndex % LOVE_PICKUP_LINES.length];
+        currentLineIndex++;
+
+        lovelineToast.textContent = `"${line}"`;
+        lovelineToast.classList.add('active');
+
+        // Spawn a burst of heart particles in the center
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight / 2;
+        for (let i = 0; i < 15; i++) {
+          floatingHearts.push({
+            x: cx + (Math.random() - 0.5) * 80,
+            y: cy + (Math.random() - 0.5) * 80,
+            size: 14 + Math.random() * 14,
+            alpha: 1.0,
+            color: Math.random() > 0.4 ? '#FDA4AF' : '#E11D48',
+            char: '♥',
+            vx: (Math.random() - 0.5) * 3,
+            vy: -1.5 - Math.random() * 2,
+            rot: 0
+          });
+        }
+
+        setTimeout(() => {
+          lovelineToast.classList.remove('active');
+        }, 3600);
+      });
+
+      replayBtn.addEventListener('click', () => {
+        audio.playClimaxMelody();
+      });
+
+      returnBtn.addEventListener('click', () => {
+        audio.playTempleChime(3.0);
+        climaxOverlay.classList.remove('active');
+        celestialBansuri.classList.remove('active');
+        isClimaxActive = false;
+
+        const allBodies = [...featherBodies, ...petalBodies, ...cardBodies];
+        const cx = window.innerWidth / 2;
+        const cy = window.innerHeight / 2;
+
+        allBodies.forEach(b => {
+          const angle = Math.atan2(b.position.y - cy, b.position.x - cx) + (Math.random() - 0.5) * 0.8;
+          const speed = 2.5 + Math.random() * 3.5;
+          Body.setVelocity(b, {
+            x: Math.cos(angle) * speed,
+            y: Math.sin(angle) * speed
+          });
+          Body.setAngularVelocity(b, (Math.random() - 0.5) * 0.05);
+        });
+
+        setTimeout(() => {
+          bottomCta.style.opacity = '1';
+          bottomCta.style.pointerEvents = 'auto';
+          if (touchHint) touchHint.style.opacity = '1';
+        }, 1200);
+      });
+
+      // Audio Toggle Button
+      const audioToggle = document.getElementById('audio-toggle');
+      const soundIndicator = document.getElementById('sound-indicator');
+      const audioLabelText = document.getElementById('audio-label-text');
+
+      audioToggle.addEventListener('click', () => {
+        const isMuted = audio.toggleMute();
+        if (isMuted) {
+          audioToggle.classList.remove('audio-playing');
+          audioLabelText.textContent = 'Muted';
+          audioLabelText.style.color = '#94A3B8';
+        } else {
+          audioToggle.classList.add('audio-playing');
+          audioLabelText.textContent = 'Flute Chimes';
+          audioLabelText.style.color = '#FEF08A';
+          audio.playTempleChime(3.0);
+        }
+      });
+
+      const unlockAudio = () => {
+        audio.init();
+        audioToggle.classList.add('audio-playing');
+        window.removeEventListener('pointerdown', unlockAudio);
+        window.removeEventListener('keydown', unlockAudio);
+      };
+      window.addEventListener('pointerdown', unlockAudio);
+      window.addEventListener('keydown', unlockAudio);
+
+      window.addEventListener('resize', () => {
+        initBackgroundStars();
+
+        const dpr = window.devicePixelRatio || 1;
+        physicsCanvas.width = window.innerWidth * dpr;
+        physicsCanvas.height = window.innerHeight * dpr;
+        ctx.scale(dpr, dpr);
+
+        createBoundaryWalls();
+      });
+
+      initPhysics();
+      requestAnimationFrame(renderLoop);
+
+    })();
+  </script>
+</body>
+</html>
